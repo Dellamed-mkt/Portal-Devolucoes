@@ -242,8 +242,11 @@
             </div>
 
             <div class="grid sm:grid-cols-3 gap-4">
-              <div><label class="lbl" for="quantidade">Quantidade *</label>
-                <input class="fld" id="quantidade" type="number" min="1" step="1" placeholder="Ex.: 2" inputmode="numeric"></div>
+              <div>
+                <label class="lbl" for="quantidade">Quantidade *</label>
+                <input class="fld" id="quantidade" type="number" min="1" step="1" placeholder="Nº de unidades, ex.: 12" inputmode="numeric">
+                <span class="block text-xs text-neutral-500 mt-1 ml-1">Informe em peças avulsas, não em caixas.</span>
+              </div>
               <div><label class="lbl" for="lote">Lote</label>
                 <input class="fld" id="lote" placeholder="Se houver"></div>
               <div><label class="lbl" for="coleta">Necessita coleta? *</label>
@@ -257,29 +260,48 @@
             <div><label class="lbl" for="motivo">Motivo da devolução *</label>
               <select class="fld" id="motivo">
                 <option value="">Selecione</option>
-                <option>Produto avariado no transporte</option>
-                <option>Produto com defeito de fabricação</option>
-                <option>Divergência de item ou quantidade</option>
-                <option class="op-b2c">Arrependimento da compra (até 7 dias)</option>
-                <option class="op-b2c">Produto não atendeu à expectativa</option>
-                <option class="op-b2b">Erro nos dados de faturamento</option>
-                <option class="op-b2b">Recusa de recebimento pelo cliente</option>
-                <option class="op-b2b">Erro na digitação do pedido</option>
-                <option>Outro</option>
+                <option>Avaria Transportadora</option>
+                <option>Desistência do Cliente</option>
+                <option>Duplicidade de Pedido</option>
+                <option>Etiqueta Incorreta</option>
+                <option>Extravio Transportadora</option>
+                <option>Negociação Comercial</option>
+                <option>Negociação Financeira</option>
+                <option>Pedido cancelado</option>
+                <option>Pedido Incorreto</option>
+                <option>Qualidade (Autorizado Ass. Técnica)</option>
+                <option>Venda - Dado Cadastral Razão Social</option>
+                <option>Venda - Dados Cadastrais Cliente</option>
+                <option>Venda - Insucesso de Entrega (EC)</option>
+                <option>Venda - Operação Não Realizada</option>
+                <option>Venda - Pedido cancelado</option>
+                <option>Venda - Separação de Produto Incorreto</option>
+                <option>Venda - Tipo de frete (CIF/FOB)</option>
               </select></div>
 
             <div><label class="lbl" for="detalhe">Descreva o que aconteceu *</label>
               <textarea class="fld" id="detalhe" rows="3" placeholder="Conte o problema com suas palavras e desde quando ele aparece."></textarea></div>
 
             <div>
-              <label class="lbl" for="fotos">Imagens da irregularidade e das etiquetas *</label>
-              <label for="fotos" class="flex flex-col items-center justify-center gap-1 border-2 border-dashed border-[#0055aa]/30 rounded-xl py-6 cursor-pointer hover:border-[#0055aa] hover:bg-[#0055aa]/5 transition-all">
+              <label class="lbl" for="fotos_irreg">Imagens da irregularidade *</label>
+              <label for="fotos_irreg" class="flex flex-col items-center justify-center gap-1 border-2 border-dashed border-[#0055aa]/30 rounded-xl py-6 cursor-pointer hover:border-[#0055aa] hover:bg-[#0055aa]/5 transition-all">
                 <iconify-icon icon="solar:gallery-add-linear" class="text-3xl text-[#0055aa]"></iconify-icon>
                 <span class="text-sm font-semibold text-[#003366]">Toque para anexar imagens</span>
-                <span class="text-xs text-neutral-500">Até 5 fotos, JPG ou PNG. Inclua o defeito e a etiqueta com lote e modelo.</span>
+                <span class="text-xs text-neutral-500">De 2 a 5 fotos, JPG ou PNG. Mostre o defeito e a etiqueta com lote e modelo.</span>
               </label>
-              <input type="file" id="fotos" accept="image/*" multiple class="hidden">
-              <div id="previa" class="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-3"></div>
+              <input type="file" id="fotos_irreg" accept="image/*" multiple class="hidden">
+              <div id="previa_irreg" class="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-3"></div>
+            </div>
+
+            <div id="bloco-embalado" class="hidden">
+              <label class="lbl" for="fotos_emb">Fotos do material embalado *</label>
+              <label for="fotos_emb" class="flex flex-col items-center justify-center gap-1 border-2 border-dashed border-[#0055aa]/30 rounded-xl py-6 cursor-pointer hover:border-[#0055aa] hover:bg-[#0055aa]/5 transition-all">
+                <iconify-icon icon="solar:box-linear" class="text-3xl text-[#0055aa]"></iconify-icon>
+                <span class="text-sm font-semibold text-[#003366]">Toque para anexar imagens</span>
+                <span class="text-xs text-neutral-500">De 2 a 5 fotos do produto embalado, como será coletado.</span>
+              </label>
+              <input type="file" id="fotos_emb" accept="image/*" multiple class="hidden">
+              <div id="previa_emb" class="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-3"></div>
             </div>
 
             <label class="flex items-start gap-2 text-xs text-neutral-600 leading-relaxed">
@@ -326,8 +348,8 @@ document.addEventListener('DOMContentLoaded', function () {
      EMAIL    : cópia por e-mail via FormSubmit. Vazio = desativado.
   ================================================================ */
   var CONFIG = {
-    API_URL: 'https://script.google.com/macros/s/AKfycbw-SK4TAMwR2Wdpav9SEd_0wZRNAM9uSDbnng5TWJz2-k-JqkQW8__89LARhxwzfcNSkA/exec',
-    PLANILHA: 'https://docs.google.com/spreadsheets/d/1-vzZzLIGfMmmLrI7jl02BZ4Pg5H52lw__1FPgfBmx_Q/edit',
+    API_URL: 'https://script.google.com/macros/s/AKfycbykFSJvFqPTYoVaD4fSUa7jurCZfUavquTTVxm0LeBhPvLWrph4c9J1wZp3muDwOaPnEQ/exec',
+    PLANILHA: 'https://docs.google.com/spreadsheets/d/13Uk4NrEEEphzTlz5OvafNF6FVnvZdgmuhM9OAb8EiX4/edit',
     EMAIL: 'sabrina.incerti@dellamed.com.br'
   };
 
@@ -474,9 +496,6 @@ document.addEventListener('DOMContentLoaded', function () {
     $('tag-pessoa').textContent = estado.pessoa;
 
     // motivos por natureza da compra
-    document.querySelectorAll('#motivo .op-b2c').forEach(function (o) { o.classList.toggle('hidden', !pf); });
-    document.querySelectorAll('#motivo .op-b2b').forEach(function (o) { o.classList.toggle('hidden', pf); });
-
     $('sucesso').classList.add('hidden');
     $('sucesso').classList.remove('flex');
     $('form').classList.remove('hidden');
@@ -485,8 +504,8 @@ document.addEventListener('DOMContentLoaded', function () {
   marcarPassos(1);
 
   /* ---------- anexos de imagem ---------- */
-  var MAX_FOTOS = 5, LADO_MAX = 1400, QUALIDADE = 0.72;
-  var anexos = [];   // [{nome, dados(base64 sem cabeçalho)}]
+  var MAX_FOTOS = 5, MIN_FOTOS = 2, LADO_MAX = 1400, QUALIDADE = 0.72;
+  var anexos = { irreg: [], emb: [] };   // cada caixa: [{nome, dados, url}]
 
   function comprimir(arquivo) {
     return new Promise(function (resolve, reject) {
@@ -510,38 +529,50 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  function desenharPrevia() {
-    $('previa').innerHTML = anexos.map(function (a, i) {
+  function desenharPrevia(chave, idPrevia) {
+    $(idPrevia).innerHTML = anexos[chave].map(function (a, i) {
       return '<div class="relative group">' +
         '<img src="' + a.url + '" class="h-20 w-full object-cover rounded-lg border border-[#0055aa]/20">' +
         '<button type="button" data-remover="' + i + '" title="Remover" ' +
         'class="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-[#A6192E] text-white text-xs font-bold shadow">&times;</button>' +
         '</div>';
     }).join('');
-    $('previa').querySelectorAll('[data-remover]').forEach(function (b) {
+    $(idPrevia).querySelectorAll('[data-remover]').forEach(function (b) {
       b.addEventListener('click', function () {
-        anexos.splice(+b.getAttribute('data-remover'), 1);
-        desenharPrevia();
+        anexos[chave].splice(+b.getAttribute('data-remover'), 1);
+        desenharPrevia(chave, idPrevia);
       });
     });
   }
 
-  $('fotos').addEventListener('change', function () {
-    var lista = Array.prototype.slice.call(this.files);
-    var erro = $('erro');
-    if (anexos.length + lista.length > MAX_FOTOS) {
-      erro.textContent = 'Máximo de ' + MAX_FOTOS + ' fotos por solicitação.';
-      erro.classList.remove('hidden');
-      lista = lista.slice(0, MAX_FOTOS - anexos.length);
-    }
-    Promise.all(lista.map(comprimir)).then(function (prontos) {
-      anexos = anexos.concat(prontos);
-      desenharPrevia();
-    }).catch(function () {
-      erro.textContent = 'Não consegui ler uma das imagens. Tente outro arquivo.';
-      erro.classList.remove('hidden');
+  function ligarCaixa(chave, idInput, idPrevia) {
+    $(idInput).addEventListener('change', function () {
+      var lista = Array.prototype.slice.call(this.files);
+      var erro = $('erro');
+      if (anexos[chave].length + lista.length > MAX_FOTOS) {
+        erro.textContent = 'Máximo de ' + MAX_FOTOS + ' fotos por caixa.';
+        erro.classList.remove('hidden');
+        lista = lista.slice(0, MAX_FOTOS - anexos[chave].length);
+      }
+      Promise.all(lista.map(comprimir)).then(function (prontos) {
+        anexos[chave] = anexos[chave].concat(prontos);
+        desenharPrevia(chave, idPrevia);
+      }).catch(function () {
+        erro.textContent = 'Não consegui ler uma das imagens. Tente outro arquivo.';
+        erro.classList.remove('hidden');
+      });
+      this.value = '';
     });
-    this.value = '';
+  }
+
+  ligarCaixa('irreg', 'fotos_irreg', 'previa_irreg');
+  ligarCaixa('emb', 'fotos_emb', 'previa_emb');
+
+  /* mostra a caixa de embalado só quando a coleta for Sim */
+  $('coleta').addEventListener('change', function () {
+    var sim = (this.value === 'Sim');
+    $('bloco-embalado').classList.toggle('hidden', !sim);
+    if (!sim) { anexos.emb = []; desenharPrevia('emb', 'previa_emb'); }
   });
 
   /* ---------- acesso da equipe ---------- */
@@ -580,7 +611,8 @@ document.addEventListener('DOMContentLoaded', function () {
       motivo: $('motivo').value,
       detalhe: $('detalhe').value.trim(),
       status: 'Recebida',
-      anexos: anexos.map(function (a) { return { nome: a.nome, dados: a.dados }; })
+      anexosIrreg: anexos.irreg.map(function (a) { return { nome: a.nome, dados: a.dados }; }),
+      anexosEmb: anexos.emb.map(function (a) { return { nome: a.nome, dados: a.dados }; })
     };
 
     if (estado.emNomeDe) {
@@ -619,21 +651,22 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!reg.coleta) return falhar('Informe se o produto precisa ser coletado.');
     if (!reg.motivo) return falhar('Selecione o motivo da devolução.');
     if (reg.detalhe.length < 10) return falhar('Descreva o caso com um pouco mais de detalhe.');
-    if (!anexos.length) return falhar('Anexe ao menos uma imagem da irregularidade ou da etiqueta.');
+    if (anexos.irreg.length < MIN_FOTOS) return falhar('Anexe pelo menos ' + MIN_FOTOS + ' imagens da irregularidade.');
+    if (reg.coleta === 'Sim' && anexos.emb.length < MIN_FOTOS) return falhar('Como haverá coleta, anexe pelo menos ' + MIN_FOTOS + ' fotos do material embalado.');
     if (!$('lgpd').checked) return falhar('É necessário autorizar o uso dos dados.');
 
     var btn = $('btn-enviar');
     var textoOriginal = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = anexos.length ? 'Enviando fotos...' : 'Enviando...';
+    btn.innerHTML = (anexos.irreg.length + anexos.emb.length) ? 'Enviando fotos...' : 'Enviando...';
 
     function copiaPorEmail(protocoloGerado) {
       if (!CONFIG.EMAIL) return Promise.resolve();
       var fd = new FormData();
       Object.keys(reg).forEach(function (k) {
-        if (k !== 'anexos') { fd.append(k, reg[k]); }
+        if (k !== 'anexosIrreg' && k !== 'anexosEmb') { fd.append(k, reg[k]); }
       });
-      fd.append('fotos_anexadas', reg.anexos.length);
+      fd.append('fotos_anexadas', reg.anexosIrreg.length + reg.anexosEmb.length);
       fd.append('protocolo', protocoloGerado || 'sem protocolo');
       fd.append('_subject', 'Solicitação ' + (protocoloGerado || '') + ' - ' + reg.tipo);
       fd.append('_captcha', 'false');
@@ -665,20 +698,24 @@ document.addEventListener('DOMContentLoaded', function () {
     })
     .then(function (r) { return r.json(); })
     .then(function (resposta) {
-      if (resposta && resposta.ok) { concluir(resposta.protocolo); }
-      else { throw new Error('falha no registro'); }
+      if (resposta && resposta.ok) { concluir(resposta.protocolo); return; }
+      throw new Error(resposta && resposta.erro ? resposta.erro : 'resposta inesperada do servidor');
     })
-    .catch(function () {
+    .catch(function (falha) {
       btn.disabled = false;
       btn.innerHTML = textoOriginal;
-      falhar('Não foi possível registrar agora. Tente novamente em instantes ou fale com o pós-vendas.');
+      console.error('Portal de devoluções:', falha);
+      falhar('Não foi possível registrar agora. Tente novamente em instantes ou fale com o pós-vendas. (' +
+             (falha && falha.message ? falha.message : 'erro de conexão') + ')');
     });
   });
 
   $('btn-nova').addEventListener('click', function () {
     $('form').reset();
-    anexos = [];
-    desenharPrevia();
+    anexos = { irreg: [], emb: [] };
+    desenharPrevia('irreg', 'previa_irreg');
+    desenharPrevia('emb', 'previa_emb');
+    $('bloco-embalado').classList.add('hidden');
     estado = { origem: '', origemOutro: '', pessoa: '', emNomeDe: false };
     document.querySelectorAll('.op-card').forEach(function (c) { c.classList.remove('on'); });
     $('caixa-outro').classList.add('hidden');
