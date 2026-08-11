@@ -343,14 +343,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ==== CONFIGURAÇÃO ============================================
      API_URL  : URL do Web App do Apps Script (termina em /exec).
-                É quem grava na planilha e devolve o protocolo.
+                Grava na planilha, dispara o e-mail e devolve o protocolo.
      PLANILHA : link da planilha, aberto pelo botão "Área da equipe".
-     EMAIL    : cópia por e-mail via FormSubmit. Vazio = desativado.
   ================================================================ */
   var CONFIG = {
     API_URL: 'https://script.google.com/macros/s/AKfycbykFSJvFqPTYoVaD4fSUa7jurCZfUavquTTVxm0LeBhPvLWrph4c9J1wZp3muDwOaPnEQ/exec',
-    PLANILHA: 'https://docs.google.com/spreadsheets/d/13Uk4NrEEEphzTlz5OvafNF6FVnvZdgmuhM9OAb8EiX4/edit',
-    EMAIL: 'sabrina.incerti@dellamed.com.br'
+    PLANILHA: 'https://docs.google.com/spreadsheets/d/13Uk4NrEEEphzTlz5OvafNF6FVnvZdgmuhM9OAb8EiX4/edit'
   };
 
   var $ = function (id) { return document.getElementById(id); };
@@ -660,24 +658,7 @@ document.addEventListener('DOMContentLoaded', function () {
     btn.disabled = true;
     btn.innerHTML = (anexos.irreg.length + anexos.emb.length) ? 'Enviando fotos...' : 'Enviando...';
 
-    function copiaPorEmail(protocoloGerado) {
-      if (!CONFIG.EMAIL) return Promise.resolve();
-      var fd = new FormData();
-      Object.keys(reg).forEach(function (k) {
-        if (k !== 'anexosIrreg' && k !== 'anexosEmb') { fd.append(k, reg[k]); }
-      });
-      fd.append('fotos_anexadas', reg.anexosIrreg.length + reg.anexosEmb.length);
-      fd.append('protocolo', protocoloGerado || 'sem protocolo');
-      fd.append('_subject', 'Solicitação ' + (protocoloGerado || '') + ' - ' + reg.tipo);
-      fd.append('_captcha', 'false');
-      fd.append('_template', 'table');
-      return fetch('https://formsubmit.co/ajax/' + CONFIG.EMAIL, {
-        method: 'POST', body: fd, headers: { 'Accept': 'application/json' }
-      }).catch(function () {});
-    }
-
     function concluir(protocoloGerado) {
-      copiaPorEmail(protocoloGerado);
       $('form').classList.add('hidden');
       $('protocolo-out').textContent = protocoloGerado || '';
       $('protocolo-out').classList.toggle('hidden', !protocoloGerado);
