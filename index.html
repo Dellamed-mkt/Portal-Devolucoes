@@ -37,15 +37,12 @@
 
 <div class="w-full bg-[#003366] px-4 py-2 text-center shadow-md">
   <p class="text-xs sm:text-sm font-medium text-white/90">
-    Central de devoluções e refaturamento Dellamed. Identifique-se, descreva o caso e receba o número de protocolo.
+    Central de devoluções Dellamed. Identifique-se, descreva o caso e receba o número do seu protocolo.
   </p>
 </div>
 
-<nav class="sticky top-0 z-50 flex items-center justify-between h-16 px-6 lg:px-12 bg-[#A6192E]/85 backdrop-blur-md border-b border-white/10">
+<nav class="sticky top-0 z-50 flex items-center justify-center h-16 px-6 lg:px-12 bg-[#A6192E]/85 backdrop-blur-md border-b border-white/10">
   <span class="tracking-tighter font-semibold text-lg">Dellamed</span>
-  <a id="btn-area-equipe" href="#" target="_blank" rel="noopener" class="text-xs font-semibold uppercase tracking-wide text-white/80 hover:text-white flex items-center gap-1.5">
-    <iconify-icon icon="solar:clipboard-list-linear" class="text-base"></iconify-icon> Área da equipe
-  </a>
 </nav>
 
 <main class="flex-grow w-full pt-12 pb-16 relative overflow-hidden">
@@ -356,7 +353,7 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ==== CONFIGURAÇÃO ============================================
      API_URL  : URL do Web App do Apps Script (termina em /exec).
                 Grava na planilha, dispara o e-mail e devolve o protocolo.
-     PLANILHA : link da planilha, aberto pelo botão "Área da equipe".
+     PLANILHA : link da planilha (uso interno da equipe).
   ================================================================ */
   var CONFIG = {
     API_URL: 'https://script.google.com/macros/s/AKfycbykFSJvFqPTYoVaD4fSUa7jurCZfUavquTTVxm0LeBhPvLWrph4c9J1wZp3muDwOaPnEQ/exec',
@@ -441,7 +438,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     marcarPassos(n);
     if (n === 3) { prepararFormulario(); }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   /* etapa 1: origem da compra */
@@ -584,11 +580,6 @@ document.addEventListener('DOMContentLoaded', function () {
     $('bloco-embalado').classList.toggle('hidden', !sim);
     if (!sim) { anexos.emb = []; desenharPrevia('emb', 'previa_emb'); }
   });
-
-  /* ---------- acesso da equipe ---------- */
-  var linkEquipe = $('btn-area-equipe');
-  if (CONFIG.PLANILHA) { linkEquipe.href = CONFIG.PLANILHA; }
-  else { linkEquipe.classList.add('hidden'); }
 
   /* ---------- envio ---------- */
   $('form').addEventListener('submit', function (ev) {
