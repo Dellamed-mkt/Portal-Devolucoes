@@ -258,7 +258,7 @@
               </div>
               <div><label class="lbl" for="lote">Lote</label>
                 <input class="fld" id="lote" placeholder="Se houver"></div>
-              <div><label class="lbl" for="coleta">Necessita coleta? *</label>
+              <div id="bloco-coleta"><label class="lbl" for="coleta">É necessário coletar no local? *</label>
                 <select class="fld" id="coleta">
                   <option value="">Selecione</option>
                   <option>Sim</option>
@@ -292,22 +292,22 @@
               <textarea class="fld" id="detalhe" rows="3" placeholder="Conte o problema com suas palavras e desde quando ele aparece."></textarea></div>
 
             <div>
-              <label class="lbl" for="fotos_irreg">Imagens da irregularidade *</label>
+              <label class="lbl" for="fotos_irreg" id="lbl-fotos-irreg">Imagens da irregularidade *</label>
               <label for="fotos_irreg" class="flex flex-col items-center justify-center gap-1 border-2 border-dashed border-[#0055aa]/30 rounded-xl py-6 cursor-pointer hover:border-[#0055aa] hover:bg-[#0055aa]/5 transition-all">
                 <iconify-icon icon="solar:gallery-add-linear" class="text-3xl text-[#0055aa]"></iconify-icon>
                 <span class="text-sm font-semibold text-[#003366]">Toque para anexar imagens</span>
-                <span class="text-xs text-neutral-500">De 2 a 5 fotos, JPG ou PNG. Mostre o defeito e a etiqueta com lote e modelo.</span>
+                <span class="text-xs text-neutral-500" id="apoio-fotos-irreg">De 1 a 5 fotos, JPG ou PNG. Mostre o defeito e a etiqueta com lote e modelo.</span>
               </label>
               <input type="file" id="fotos_irreg" accept="image/*" multiple class="hidden">
               <div id="previa_irreg" class="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-3"></div>
             </div>
 
             <div id="bloco-embalado" class="hidden">
-              <label class="lbl" for="fotos_emb">Fotos do material embalado *</label>
+              <label class="lbl" for="fotos_emb">Fotos do material embalado * <span class="font-normal normal-case text-neutral-500">(Informação obrigatória para a transportadora)</span></label>
               <label for="fotos_emb" class="flex flex-col items-center justify-center gap-1 border-2 border-dashed border-[#0055aa]/30 rounded-xl py-6 cursor-pointer hover:border-[#0055aa] hover:bg-[#0055aa]/5 transition-all">
                 <iconify-icon icon="solar:box-linear" class="text-3xl text-[#0055aa]"></iconify-icon>
                 <span class="text-sm font-semibold text-[#003366]">Toque para anexar imagens</span>
-                <span class="text-xs text-neutral-500">De 2 a 5 fotos do produto embalado, como será coletado.</span>
+                <span class="text-xs text-neutral-500">De 1 a 5 fotos do produto embalado, como será coletado.</span>
               </label>
               <input type="file" id="fotos_emb" accept="image/*" multiple class="hidden">
               <div id="previa_emb" class="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-3"></div>
@@ -505,12 +505,13 @@ document.addEventListener('DOMContentLoaded', function () {
     $('sucesso').classList.add('hidden');
     $('sucesso').classList.remove('flex');
     $('form').classList.remove('hidden');
+    if (typeof aplicarRegraMotivo === 'function') { aplicarRegraMotivo(); }
   }
 
   marcarPassos(1);
 
   /* ---------- anexos de imagem ---------- */
-  var MAX_FOTOS = 5, MIN_FOTOS = 2, LADO_MAX = 1400, QUALIDADE = 0.72;
+  var MAX_FOTOS = 5, MIN_FOTOS = 1, LADO_MAX = 1400, QUALIDADE = 0.72;
   var anexos = { irreg: [], emb: [] };   // cada caixa: [{nome, dados, url}]
 
   function comprimir(arquivo) {
@@ -574,9 +575,36 @@ document.addEventListener('DOMContentLoaded', function () {
   ligarCaixa('irreg', 'fotos_irreg', 'previa_irreg');
   ligarCaixa('emb', 'fotos_emb', 'previa_emb');
 
-  /* mostra a caixa de embalado só quando a coleta for Sim */
+  /* motivos em que o produto não foi ao cliente: a prova é a ressalva na NF,
+     não a foto do defeito, e não há coleta/material embalado. */
+  var MOTIVOS_RESSALVA = ['Extravio Transportadora', 'Venda - Separação de Produto Incorreto'];
+
+  function ehRessalva() { return MOTIVOS_RESSALVA.indexOf($('motivo').value) > -1; }
+
+  function aplicarRegraMotivo() {
+    var ressalva = ehRessalva();
+    if (ressalva) {
+      $('lbl-fotos-irreg').textContent = 'Foto da ressalva em nota fiscal *';
+      $('apoio-fotos-irreg').textContent = 'De 1 a 5 fotos, JPG ou PNG. Anexe a nota fiscal com a ressalva registrada.';
+      // sem coleta / sem material embalado nesses casos
+      $('bloco-coleta').classList.add('hidden');
+      $('coleta').value = 'Não';
+      $('bloco-embalado').classList.add('hidden');
+      anexos.emb = []; desenharPrevia('emb', 'previa_emb');
+    } else {
+      $('lbl-fotos-irreg').textContent = 'Imagens da irregularidade *';
+      $('apoio-fotos-irreg').textContent = 'De 1 a 5 fotos, JPG ou PNG. Mostre o defeito e a etiqueta com lote e modelo.';
+      $('bloco-coleta').classList.remove('hidden');
+      // reavalia a caixa de embalado conforme a coleta atual
+      $('bloco-embalado').classList.toggle('hidden', $('coleta').value !== 'Sim');
+    }
+  }
+
+  $('motivo').addEventListener('change', aplicarRegraMotivo);
+
+  /* mostra a caixa de embalado só quando a coleta for Sim (e não for ressalva) */
   $('coleta').addEventListener('change', function () {
-    var sim = (this.value === 'Sim');
+    var sim = (this.value === 'Sim') && !ehRessalva();
     $('bloco-embalado').classList.toggle('hidden', !sim);
     if (!sim) { anexos.emb = []; desenharPrevia('emb', 'previa_emb'); }
   });
@@ -652,8 +680,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!reg.coleta) return falhar('Informe se o produto precisa ser coletado.');
     if (!reg.motivo) return falhar('Selecione o motivo da devolução.');
     if (reg.detalhe.length < 10) return falhar('Descreva o caso com um pouco mais de detalhe.');
-    if (anexos.irreg.length < MIN_FOTOS) return falhar('Anexe pelo menos ' + MIN_FOTOS + ' imagens da irregularidade.');
-    if (reg.coleta === 'Sim' && anexos.emb.length < MIN_FOTOS) return falhar('Como haverá coleta, anexe pelo menos ' + MIN_FOTOS + ' fotos do material embalado.');
+    if (anexos.irreg.length < MIN_FOTOS) return falhar('Anexe pelo menos ' + MIN_FOTOS + ' foto da irregularidade.');
+    if (reg.coleta === 'Sim' && anexos.emb.length < MIN_FOTOS) return falhar('Como haverá coleta, anexe pelo menos ' + MIN_FOTOS + ' foto do material embalado.');
     if (!$('lgpd').checked) return falhar('É necessário autorizar o uso dos dados.');
 
     var btn = $('btn-enviar');
@@ -700,6 +728,7 @@ document.addEventListener('DOMContentLoaded', function () {
     desenharPrevia('irreg', 'previa_irreg');
     desenharPrevia('emb', 'previa_emb');
     $('bloco-embalado').classList.add('hidden');
+    aplicarRegraMotivo();
     estado = { origem: '', origemOutro: '', pessoa: '', emNomeDe: false };
     document.querySelectorAll('.op-card').forEach(function (c) { c.classList.remove('on'); });
     $('caixa-outro').classList.add('hidden');
