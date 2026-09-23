@@ -170,7 +170,7 @@
           <p class="text-neutral-600">Guarde o número de protocolo para acompanhar o andamento.</p>
           <p id="protocolo-out" class="text-3xl font-bold text-[#A6192E] tracking-tight"></p>
 
-          <div class="w-full max-w-md mt-2 rounded-xl bg-[#0055aa]/5 border border-[#0055aa]/15 p-4 text-left flex gap-3">
+          <div id="aviso-email" class="w-full max-w-md mt-2 rounded-xl bg-[#0055aa]/5 border border-[#0055aa]/15 p-4 text-left flex gap-3">
             <iconify-icon icon="solar:letter-linear" class="text-2xl text-[#0055aa] shrink-0 mt-0.5"></iconify-icon>
             <div>
               <p class="text-sm font-semibold text-[#003366]">Enviamos uma confirmação para o seu e-mail.</p>
@@ -698,7 +698,11 @@ document.addEventListener('DOMContentLoaded', function () {
       ok.classList.add('flex');
       btn.disabled = false;
       btn.innerHTML = textoOriginal;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Foco na mensagem de confirmação/spam, não no topo da página.
+      var alvo = $('aviso-email');
+      if (alvo && alvo.scrollIntoView) {
+        alvo.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
 
     if (!CONFIG.API_URL) { concluir(''); return; }
